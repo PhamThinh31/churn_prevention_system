@@ -41,7 +41,7 @@ fetch-artifacts:
 	python scripts/download_artifacts.py
 
 upload-artifacts:
-	./scripts/upload_artifacts.sh $(TAG)
+	python scripts/upload_artifacts.py --tag $(TAG)
 
 phase1:
 	jupyter nbconvert --to notebook --execute notebooks/01_eda_and_labels.ipynb --inplace
