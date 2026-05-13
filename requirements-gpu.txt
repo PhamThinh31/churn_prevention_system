@@ -1,0 +1,25 @@
+# GPU environment (Linux + NVIDIA CUDA, e.g. the GPU training server).
+# Tested with Python 3.11 and CUDA 12.1.
+#
+# Usage:
+#   conda create -n churn-gpu python=3.11 -y
+#   conda activate churn-gpu
+#   pip install -r requirements-gpu.txt
+#
+# If your CUDA toolkit version differs, change `cu121` below to match
+# (e.g. cu118, cu124). Verify CUDA version with: nvidia-smi
+
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+-r requirements-base.txt
+
+# PyTorch with CUDA 12.1 support
+torch>=2.2
+
+# FAISS — keep the CPU wheel (faiss-gpu on PyPI is unmaintained;
+# install via conda-forge if you need GPU FAISS: `conda install -c conda-forge faiss-gpu`)
+faiss-cpu>=1.7.4
+
+# DeepSurv survival model (PyTorch-based). Optional, only used in the
+# Phase 2 deep-survival comparison.
+pycox>=0.2.3

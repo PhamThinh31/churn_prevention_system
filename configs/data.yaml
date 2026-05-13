@@ -1,0 +1,12 @@
+raw_path: data/raw/online_retail_II.csv
+processed_dir: data/processed
+features_dir: data/features
+
+churn:
+  horizon_days: 90       # spec 3.1: no purchase in next N days → churn=1
+
+split:
+  # Time-based split. Each window holds out 90 days for label observation.
+  # Dates derived from data; these are anchors used by src/data/splits.py.
+  strategy: rolling_90d
+  n_windows: 3           # train / val / test

@@ -1,0 +1,44 @@
+# Shared dependencies for CPU and GPU environments.
+# Do NOT install this file directly — use requirements-cpu.txt or requirements-gpu.txt.
+
+# Core
+numpy>=1.26,<2.0
+pandas>=2.1
+pyarrow>=14.0
+scipy>=1.11
+scikit-learn>=1.4
+matplotlib>=3.8
+seaborn>=0.13
+
+# Churn — classification stack
+xgboost>=2.0
+lightgbm>=4.1
+catboost>=1.2
+optuna>=3.5
+
+# Churn — BG-NBD
+lifetimes>=0.11
+
+# Churn — survival (CoxPH, KaplanMeier — pure Python, no torch)
+lifelines>=0.28
+
+# API + serving
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.5
+
+# Dashboard
+flask>=3.0
+
+# MLOps
+mlflow>=2.10
+evidently>=0.4
+
+# LLM reranker
+anthropic>=0.25
+
+# Dev
+pytest>=7.4
+ruff>=0.3
+ipykernel>=6.29
+jupyter>=1.0

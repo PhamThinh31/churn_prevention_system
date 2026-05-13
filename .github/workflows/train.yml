@@ -1,0 +1,46 @@
+name: train
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Which phase to run (1=eda, 2=churn, 3=sasrec, 4=ranker, all)"
+        required: true
+        default: "all"
+  pull_request:
+    types: [labeled]
+
+jobs:
+  train:
+    if: ${{ github.event.label.name == 'train' || github.event_name == 'workflow_dispatch' }}
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up env
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements-gpu.txt
+
+      - name: Run phase
+        env:
+          MLFLOW_TRACKING_URI: http://localhost:5000
+        run: |
+          source .venv/bin/activate
+          case "${{ github.event.inputs.phase }}" in
+            1|eda) jupyter nbconvert --to notebook --execute notebooks/01_eda_and_labels.ipynb ;;
+            2|churn) jupyter nbconvert --to notebook --execute notebooks/02_churn_models.ipynb ;;
+            3|sasrec) jupyter nbconvert --to notebook --execute notebooks/03_sasrec_retrieval.ipynb ;;
+            all|*)
+              jupyter nbconvert --to notebook --execute notebooks/01_eda_and_labels.ipynb &&
+              jupyter nbconvert --to notebook --execute notebooks/02_churn_models.ipynb &&
+              jupyter nbconvert --to notebook --execute notebooks/03_sasrec_retrieval.ipynb
+              ;;
+          esac
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trained-artifacts
+          path: data/features/

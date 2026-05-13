@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Churn Prevention · Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #f8fafc;
+      --surface:   #ffffff;
+      --border:    #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text:      #0f172a;
+      --text-2:    #475569;
+      --text-3:    #94a3b8;
+      --accent:    #2563eb;
+      --accent-50: #eff6ff;
+      --success:   #059669;
+      --success-50:#ecfdf5;
+      --warn:      #d97706;
+      --warn-50:   #fffbeb;
+      --danger:    #dc2626;
+      --shadow:    0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.06);
+      --radius:    10px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
+
+    /* ─── Top bar ─── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb, #059669);
+      display: grid; place-items: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+    .brand-name { font-weight: 600; letter-spacing: -0.01em; }
+    .brand-tag  { color: var(--text-3); font-size: 12px; margin-left: 6px; }
+    .top-meta { display: flex; gap: 18px; align-items: center; color: var(--text-2); font-size: 13px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 6px; }
+
+    /* ─── Layout ─── */
+    .layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidenav { display: none; } }
+
+    .sidenav {
+      position: sticky; top: 61px; align-self: start;
+      height: calc(100vh - 61px);
+      padding: 24px 16px 24px 28px;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .sidenav h6 {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      color: var(--text-3); text-transform: uppercase;
+      margin: 18px 8px 8px;
+    }
+    .sidenav a {
+      display: block; padding: 7px 10px; border-radius: 6px;
+      color: var(--text-2); text-decoration: none; font-size: 13px;
+    }
+    .sidenav a:hover { background: var(--bg); color: var(--text); }
+    .sidenav a.active { background: var(--accent-50); color: var(--accent); font-weight: 500; }
+
+    .main { padding: 32px 40px 80px; max-width: 1280px; }
+    .section { scroll-margin-top: 80px; margin-bottom: 56px; }
+    .section-head { margin-bottom: 18px; }
+    .section-head h2 {
+      font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
+      margin: 0 0 4px;
+    }
+    .section-head p { margin: 0; color: var(--text-2); font-size: 13.5px; }
+
+    /* ─── Metric cards ─── */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s ease;
+    }
+    .metric:hover { border-color: var(--border-strong); }
+    .metric-label {
+      font-size: 12px; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500;
+    }
+    .metric-value {
+      font-size: 32px; font-weight: 600;
+      color: var(--text); margin-top: 6px;
+      letter-spacing: -0.02em;
+      font-feature-settings: "tnum";
+    }
+    .metric-sub { color: var(--text-3); font-size: 13px; margin-top: 4px; }
+    .winner-banner {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; background: var(--success-50); color: var(--success);
+      border-radius: 999px; font-size: 12px; font-weight: 500; margin-top: 16px;
+    }
+
+    /* ─── Chart cards ─── */
+    .chart-grid { display: grid; gap: 20px; }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .chart-card-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chart-card-head h3 {
+      margin: 0; font-size: 14.5px; font-weight: 600; letter-spacing: -0.005em;
+    }
+    .chart-card-head .src { color: var(--text-3); font-size: 12px; }
+    .chart-card-body { padding: 16px 20px 20px; }
+    .chart-card-body img { width: 100%; height: auto; display: block; }
+
+    /* ─── Tables ─── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table th, table td {
+      padding: 8px 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+    table th {
+      background: var(--bg);
+      color: var(--text-2);
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table tr:last-child td { border-bottom: none; }
+
+    /* ─── Inventory ─── */
+    .inventory { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .inventory .chart-card-body ul { margin: 0; padding-left: 18px; color: var(--text-2); }
+    .inventory .chart-card-body li { padding: 2px 0; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+    .empty-state {
+      padding: 20px;
+      background: var(--warn-50);
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      color: #92400e;
+      font-size: 13.5px;
+    }
+    .empty-state code { background: white; padding: 2px 6px; border-radius: 4px; }
+
+    footer {
+      padding: 30px 40px 60px;
+      color: var(--text-3); font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">CP</div>
+    <div>
+      <span class="brand-name">Churn Prevention</span>
+      <span class="brand-tag">/ results dashboard</span>
+    </div>
+  </div>
+  <div class="top-meta">
+    <span><span class="status-dot"></span>Live · regenerates on refresh</span>
+    <span class="mono">PhamThinh31/churn_prevention_system</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <aside class="sidenav">
+    <h6>Sections</h6>
+    <a href="#metrics">Headline metrics</a>
+    <a href="#charts">Charts</a>
+    <a href="#tables">Underlying tables</a>
+    <a href="#data">Data inventory</a>
+    <h6 style="margin-top: 28px;">Run</h6>
+    <a href="http://localhost:8000/health" target="_blank">FastAPI health</a>
+    <a href="http://localhost:5000" target="_blank">MLflow UI</a>
+  </aside>
+
+  <main class="main">
+
+    <!-- ─── Headline metrics ─── -->
+    <section id="metrics" class="section">
+      <div class="section-head">
+        <h2>Headline metrics</h2>
+        <p>Auto-computed from <code>reports/*.csv</code> on every refresh.</p>
+      </div>
+      {% if overview.headline_metrics %}
+        <div class="metric-grid">
+          {% for m in overview.headline_metrics %}
+          <div class="metric">
+            <div class="metric-label">{{ m.label }}</div>
+            <div class="metric-value">{{ m.value }}</div>
+            <div class="metric-sub">{{ m.subtitle }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% if overview.ablation_winner %}
+          <div class="winner-banner">
+            <span>★</span>
+            Pipeline ablation winner · <strong style="margin-left: 4px;">{{ overview.ablation_winner }}</strong>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="empty-state">
+          No <code>reports/*.csv</code> found yet. Run <code>make pipeline</code> on the GPU server to generate them.
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- ─── Charts ─── -->
+    <section id="charts" class="section">
+      <div class="section-head">
+        <h2>Charts</h2>
+        <p>Ten business-facing visualizations. Each is regenerated on the fly from the latest CSVs and parquet artifacts.</p>
+      </div>
+      <div class="chart-grid">
+        {% for name, title in charts %}
+        <div class="chart-card" id="chart-{{ name }}">
+          <div class="chart-card-head">
+            <h3>{{ title }}</h3>
+            <span class="src">/chart/{{ name }}.png</span>
+          </div>
+          <div class="chart-card-body">
+            <img src="/chart/{{ name }}.png" alt="{{ title }}" loading="lazy">
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ─── Tables ─── -->
+    <section id="tables" class="section">
+      <div class="section-head">
+        <h2>Underlying tables</h2>
+        <p>Raw CSVs rendered as tables for cross-checking the charts above.</p>
+      </div>
+      {% if tables %}
+        <div class="chart-grid">
+        {% for fname, html in tables.items() %}
+          <div class="chart-card">
+            <div class="chart-card-head">
+              <h3><span class="mono">{{ fname }}</span></h3>
+            </div>
+            <div class="chart-card-body" style="overflow-x: auto;">
+              {{ html|safe }}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">No tables found in <code>reports/</code> yet.</div>
+      {% endif %}
+    </section>
+
+    <!-- ─── Data inventory ─── -->
+    <section id="data" class="section">
+      <div class="section-head">
+        <h2>Data inventory</h2>
+        <p>Artifacts produced by the pipeline and read by this dashboard.</p>
+      </div>
+      <div class="inventory">
+        {% for label, items in [('reports/*.csv', files_found.reports), ('data/features/*.parquet', files_found.features), ('data/processed/*.parquet', files_found.processed)] %}
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h3><span class="mono">{{ label }}</span></h3>
+            <span class="src">{{ items|length }} file{{ '' if items|length == 1 else 's' }}</span>
+          </div>
+          <div class="chart-card-body">
+            {% if items %}
+              <ul>{% for it in items %}<li>{{ it }}</li>{% endfor %}</ul>
+            {% else %}
+              <div style="color: var(--text-3); font-size: 13px;">— empty —</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  Refresh to regenerate charts from <span class="mono">reports/*.csv</span> + <span class="mono">data/features/*.parquet</span>.
+  Use <span class="mono">make pipeline</span> to repopulate everything.
+</footer>
+
+<script>
+  // simple scrollspy for the sidenav
+  const links = document.querySelectorAll('.sidenav a[href^="#"]');
+  const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const onScroll = () => {
+    const y = window.scrollY + 120;
+    let current = sections[0]?.id;
+    for (const s of sections) { if (s.offsetTop <= y) current = s.id; }
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+</body>
+</html>

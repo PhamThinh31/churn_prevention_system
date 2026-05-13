@@ -1,0 +1,15 @@
+# CPU-only environment (local Mac dev).
+# Tested with Python 3.11.
+#
+# Usage:
+#   conda create -n churn-cpu python=3.11 -y
+#   conda activate churn-cpu
+#   pip install -r requirements-cpu.txt
+
+-r requirements-base.txt
+
+# PyTorch — default PyPI index ships CPU wheels for macOS / Linux.
+torch>=2.2
+
+# FAISS — CPU build is the only one published reliably on PyPI.
+faiss-cpu>=1.7.4
