@@ -68,16 +68,25 @@ class SASRec(nn.Module):
 
         Assumes RIGHT-padded sequences (real items first, PAD last). With left-pad,
         position 0 would be PAD and the encoder would emit NaN — see pad_right.
-        Rows that are entirely PAD (rare) are returned as zeros instead of NaN.
+        Rows that are entirely PAD (rare) are returned as zeros: depending on the
+        PyTorch version the transformer may emit either NaN (older builds) or some
+        arbitrary finite value (newer builds with safer attention), so we detect
+        both conditions defensively.
         """
         x = x.to(self.item_emb.weight.device)
         h = self.forward(x)
-        lengths = (x != self.pad_id).sum(dim=1).clamp(min=1)
-        idx = (lengths - 1).view(-1, 1, 1).expand(-1, 1, h.size(-1))
+        real_len = (x != self.pad_id).sum(dim=1)
+        idx = (real_len.clamp(min=1) - 1).view(-1, 1, 1).expand(-1, 1, h.size(-1))
         out = h.gather(1, idx).squeeze(1)
-        # All-PAD rows still produce NaN (no real items to attend to); zero them.
+
+        # Zero out rows that had no real tokens — covers the all-PAD edge case
+        # regardless of how the underlying attention handles a fully-masked row.
+        empty = (real_len == 0).unsqueeze(1)
         nan = torch.isnan(out).any(dim=1, keepdim=True)
-        return torch.where(nan, torch.zeros_like(out), out)
+        bad = empty | nan
+        if bad.any():
+            out = torch.where(bad, torch.zeros_like(out), out)
+        return out
 
     def item_matrix(self) -> torch.Tensor:
         """Item embedding matrix (V, D). Skip PAD row for downstream FAISS."""
